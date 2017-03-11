@@ -1,17 +1,72 @@
 #include <iostream>
 #include <string>
+#include <vector>
+#include <cstdlib> //C standard library <stdlib.h>, /* atoi */
+
 
 using namespace std;
 
+int executeCommand(vector<string>&);
+vector<string> getTokens(string, char);
+
 int main(int argc, char const *argv[]){
-    while(true) {
+    int status = 0;
+    while(!status) {
         cout << "mi_sh> ";
         string line;
         getline(cin,line);
-        if(line=="exit")
-            return 0;
-        cout << line << ": comando no encontrado" << endl;
+        vector<string> tokens = getTokens(line, ' ');
+        status = executeCommand(tokens);
     };
-    cerr << "algo extraño paso" << endl;
+    if(status != 1){
+        cerr << "ERROR " << status << ": al ejecutar el comando" << endl;
+    }
     return 0;
+}
+
+/*
+ejecuta los comandos conocidos por el programa
+retorna 0 cuando todo salio bien y continuar con el programa
+retorna 1 para salir del programa sin errores
+retorna cualquier otro valor con error
+*/
+int executeCommand(vector<string>& tokens){
+    if(tokens.size() == 0){
+        cerr << "No hay commando a ejecutar" << endl;
+        return 0;
+    }
+    if(tokens[0] == "exit"){
+        if(tokens.size() == 1){
+            return 1;
+        }
+        return atoi(tokens[1].c_str());
+    }
+    if(tokens[0] == "help"){
+        if(tokens.size() == 1){
+            cout << "-----AYUDA-----\n"
+            << "por ahora no es de mucha ayuda, pero\n" 
+            << "si ocupan la lista de comandos disponible\n"
+            << "utiliza 'help list' para mostrar la lista de comandos disponibles\n" << endl;
+            return 0;
+        }
+        cout << "help (list)" << endl
+        << "exit [numero]" << endl;
+        return 0;
+    }
+    cout << tokens[0] << ": comando no encontrado" << endl;
+    return 0;
+}
+
+//retorna los tokens de la terminal
+vector<string> getTokens(string toTokenize, char delimiter){
+    vector<string> v;
+    string::iterator stringIT = toTokenize.begin();
+    for(string::iterator i = toTokenize.begin(); i != toTokenize.end(); i++){
+        if(*i == delimiter){
+            v.push_back(string(stringIT,i));
+            stringIT=i+1;
+        }
+    }
+    v.push_back(string(stringIT,toTokenize.end()));
+    return v;
 }
