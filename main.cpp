@@ -1,8 +1,11 @@
 #include <iostream>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <cstdlib> //C standard library <stdlib.h>, /* atoi */
 
+//INLCUDING COMMANDS
+#include "cat.h"
 
 using namespace std;
 
@@ -35,12 +38,6 @@ int executeCommand(vector<string>& tokens){
         cerr << "No hay commando a ejecutar" << endl;
         return 0;
     }
-    if(tokens[0] == "exit"){
-        if(tokens.size() == 1){
-            return 1;
-        }
-        return atoi(tokens[1].c_str());
-    }
     if(tokens[0] == "help"){
         if(tokens.size() == 1){
             cout << "-----AYUDA-----\n"
@@ -49,8 +46,34 @@ int executeCommand(vector<string>& tokens){
             << "utiliza 'help list' para mostrar la lista de comandos disponibles\n" << endl;
             return 0;
         }
-        cout << "help (list)" << endl
-        << "exit [numero]" << endl;
+        if(tokens[1] == "list"){
+                cout
+            << "cat [archivo]" << endl
+            << "help (list)" << endl
+            << "exit [numero]" << endl;    
+        }else{
+            cout << "No hay ayuda para comando listado" << endl;
+        }
+        return 0;
+    }
+    if(tokens[0] == "exit"){
+        if(tokens.size() == 1){
+            return 1;
+        }
+        return atoi(tokens[1].c_str());
+    }
+    if(tokens[0] == "cat"){
+        if(tokens.size() == 1){
+            cout << "Uso incorrecto de cat, porfavor especifique archivo\n"
+            << "Ejemplo: cat archivo.txt, cat [direccion/del/archivo.cpp]";
+            return 0;
+        }
+        char * filename = new char [tokens[1].length()+1];
+        strcpy(filename,tokens[1].c_str());
+        cout << filename << endl;
+        cat fileToPrint (filename);
+        fileToPrint.printFile();
+        delete[] filename;
         return 0;
     }
     cout << tokens[0] << ": comando no encontrado" << endl;
