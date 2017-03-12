@@ -83,10 +83,10 @@ int executeCommand(vector<string>& tokens){
     if(tokens[0] == "ln"){
        if(tokens.size() == 1){
             cout << "Falta comandos para el uso de ln, ln [opciones]\n"
-                 << "opciones: -s -n -f"<<endl;
+                 << "opciones: -s"<<endl;
        }else{
          if(tokens[1] == "-s"){
-            if(tokens.size() == 2 || tokens.size() == 3){
+            if(tokens.size() < 4){
                 cout << "Falta el nombre del archivo existente o el nuevo archivo\n"
                      << "ln -s archivo.txt archivo2.txt"<<endl;
             }else{
