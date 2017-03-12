@@ -2,10 +2,13 @@
 #include <cstring>
 #include <string>
 #include <vector>
-#include <cstdlib> //C standard library <stdlib.h>, /* atoi */
+#include <cstdlib>
+#include <sys/stat.h>
+#include <unistd.h> //C standard library <stdlib.h>, /* atoi */
 
 //INLCUDING COMMANDS
 #include "cat.h"
+#include "ln.hpp"
 
 using namespace std;
 
@@ -75,6 +78,30 @@ int executeCommand(vector<string>& tokens){
         fileToPrint.printFile();
         delete[] filename;
         return 0;
+    }
+    if(tokens[0] == "ln"){
+       if(tokens.size() == 1){
+            cout << "Falta comandos para el uso de ln, ln [opciones]\n"
+                 << "opciones: -s -n -f"<<endl;
+       }else{
+         if(tokens[1] == "-s"){
+            if(tokens.size() == 2 || tokens.size() == 3){
+                cout << "Falta el nombre del archivo existente o el nuevo archivo\n"
+                     << "ln -s archivo.txt archivo2.txt"<<endl;
+            }else{
+                char * archivo = new char [tokens[2].length()+1];
+                strcpy(archivo,tokens[2].c_str());
+
+                char * linkarchivo = new char [tokens[3].length()+1];
+                strcpy(linkarchivo,tokens[3].c_str());
+
+                if(link(archivo, linkarchivo) < 0){
+                    cout << "Error al linkear el archivo" << endl;
+                }
+            }
+         }
+      }
+       return 0;
     }
     cout << tokens[0] << ": comando no encontrado" << endl;
     return 0;
