@@ -4,11 +4,12 @@
 #include <vector>
 #include <cstdlib>
 #include <sys/stat.h>
-#include <unistd.h> //C standard library <stdlib.h>, /* atoi */
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/utsname.h> //C standard library <stdlib.h>, /* atoi */
 
 //INLCUDING COMMANDS
 #include "cat.h"
-#include "ln.hpp"
 
 using namespace std;
 
@@ -103,6 +104,37 @@ int executeCommand(vector<string>& tokens){
       }
        return 0;
     }
+    /*if(tokens[0] == "uname"){
+        if(tokens.size() == 1){
+            cout << "uname opcion \n"
+                 << "opcion: -a -r -m -s" << endl;
+        }else{
+            struct utsname buffer;
+            //uname unm;
+            if(uname(&buffer) != 0){
+                cout << "Eror en el uname" << endl;
+            }else{
+                if(tokens[1] == "-a"){
+                    printf("%s ", buffer.sysname);  
+                    printf("%s ", buffer.nodename); 
+                    printf("%s ", buffer.release);  
+                    printf("%s ", buffer.version);  
+                    printf("%s ", buffer.machine);
+                    printf("\n");
+                }
+                if(tokens[1] == "-r"){
+                    printf("%s \n", buffer.release);
+                }
+                if(tokens[1] == "-m"){
+                    printf("%s \n", buffer.machine);
+                }
+                if(tokens[1] == "-s"){
+                    printf("%s \n", buffer.sysname);
+                }
+            }
+        }
+        return 0;     
+    }*/
     cout << tokens[0] << ": comando no encontrado" << endl;
     return 0;
 }
