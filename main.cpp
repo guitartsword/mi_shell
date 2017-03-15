@@ -234,7 +234,7 @@ int executeCommand(vector<string>& tokens){
 		}
 		else{
 			if(fork() == 0){
-				execlp("/home/isaac/Desktop/Trabajos/Sistemas_Operativos_1/scripts/Isaias/mi_shell/mkdir","./mkdir",tokens[1].c_str(), (char *)0);
+				execlp("mkdir","./mkdir",tokens[1].c_str(), (char *)0);
 			}
 			
 		}
