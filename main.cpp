@@ -7,11 +7,11 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> //C standard library <stdlib.h>, /* atoi */
 #include <string.h>
 #include <errno.h>
 #include <sys/stat.h>
-
+#include <sys/utsname.h>
 #ifdef _WIN32
 #include <windows.h>
 #define chdir _chdir
@@ -19,7 +19,6 @@
 #else
 #include <unistd.h>
 #endif
-
 
 //INLCUDING COMMANDS
 #include "cat.h"
@@ -85,6 +84,7 @@ int executeCommand(vector<string>& tokens){
             << "Ejemplo: cat archivo.txt, cat [direccion/del/archivo.cpp]";
             return 0;
         }
+        /* //CAT de fernando
         int controlador = 1;
         //int i = 0;
         do{
@@ -101,146 +101,187 @@ int executeCommand(vector<string>& tokens){
           //     i++;
                controlador++;
         }while(controlador!=tokens.size());
-	
-        /*char * filename = new char [tokens[1].length()+1];
+        */ 
+        //CAT de Isaias
+        char * filename = new char [tokens[1].length()+1];
         strcpy(filename,tokens[1].c_str());
         cout << filename << endl;
         cat fileToPrint (filename);
         fileToPrint.printFile();
         delete[] filename;
-        return 0;*/
+        return 0;
+    } 
+    if (tokens[0] == "rm"){
+    	if(tokens.size() == 1){
+    		cout<<"Uso incorrecto de rm, muy pocos argumentos"<<endl;
+    		return 0;
+    	}
+    	else{
+    		if(tokens[1]=="-R"){
+    			if(tokens.size()==2){
+                    cout<<"uso incorrecto de rm -R, muy pocos argumentos"<<endl;
+                    return 0;
+    			}
+    			if (fork() == 0) {// proceso hijo
+                    return execlp("rm-R",tokens[2].c_str(),tokens[2].c_str(), (char *)0);   
+                }
+                return -1;
+    		}else{
+    			if(fork()==0){
+    				return execlp("rm",tokens[1].c_str(),tokens[1].c_str(), (char *)0);
+    			}
+                return -1;
+    		}
+    	}
     }
-    else if (tokens[0] == "rm"){
-	if(tokens.size() == 1){
-		cout<<"Uso incorrecto de rm, muy pocos argumentos"<<endl;
-		return 0;
-	}
-	else{
-		if(tokens[1]=="-R"){
-			if(tokens.size()==2){
-			cout<<"uso incorrecto de rm -R, muy pocos argumentos"<<endl;
-			}else{
-				if (fork() == 0) {// proceso hijo
-                        		execlp("/home/isaac/Desktop/Trabajos/Sistemas_Operativos_1/scripts/Isaias/mi_shell/rm-R",tokens[2].c_str(),tokens[2].c_str(), (char *)0);
-                		}
+    if(tokens[0]=="ls"){
+		if(tokens.size()==2){
+			if(tokens[1]=="-m"){
+				if(fork() == 0){
+					cout << "qp1" << endl;
+					return execlp("ls-m", "./ls-m", (char *)0);
+				}
+				return -1;
 			}
+			if(tokens[1]=="-l"){
+				if(fork() == 0){
+					//execlp("./ls-l", "./ls-l", (char *)0);
+					cout << "qp2" << endl;
+					return execlp("ls-l", "./ls-l", (char *)0);
+				}
+				return -1;
+			}
+			return -1;
 		}else{
-			if(fork()==0){
-				execlp("/home/isaac/Desktop/Trabajos/Sistemas_Operativos_1/scripts/Isaias/mi_shell/rm",tokens[1].c_str(),tokens[1].c_str(), (char *)0);
-			}	
-		}
-	}
-    }else if(tokens[0]=="ls"){
-	if(tokens.size()==2){
-		if(tokens[1]=="-m"){
 			if(fork() == 0){
-				execlp("/home/isaac/Desktop/Trabajos/Sistemas_Operativos_1/scripts/Isaias/mi_shell/ls-m", "./ls-m", (char *)0);
+				cout << "qp3" << endl;
+				execlp("ls","./ls", (char *)0);
 			}
-		
+			return 0;
 		}
-		else if(tokens[1]=="-l"){
+    }
+	if(tokens[0]=="cd"){
+		if(tokens.size()== 1){
+			cout<<"Uso incorrecto de cd, muy pocos argumentos"<<endl;
+			return 0;
+		}else{
+			chdir(tokens[1].c_str());
+			return 0;
+		}
+		return -1;
+	}
+	if(tokens[0]=="rmdir"){
+		if(tokens.size()==1){
+			cout<<"Uso incorrecto de rmdir, muy pocos argumentos"<<endl;
+			return 0;
+		}else{
 			if(fork() == 0){
-				//execlp("./ls-l", "./ls-l", (char *)0);
-				execlp("/home/isaac/Desktop/Trabajos/Sistemas_Operativos_1/scripts/Isaias/mi_shell/ls-l", "./ls-l", (char *)0);
+				return execlp("rmdir","./rmdir",tokens[1].c_str(), (char *)0);
+			}
+			return -1;
+		}
+    }
+    if(tokens[0]=="ps"){
+		if(tokens.size()==2){
+			if(tokens[1]=="-e"){
+				if(fork() == 0){
+					return execlp("ps-e","./ps-e", (char *)0);
+				}
+			}
+			return -1;
+		}
+    }
+    if(tokens[0]=="ln"){
+		if(tokens.size()==1){
+			cout<<"Error, hacen falta argumentos"<<endl;
+			return 0;
+		}else{
+			if(tokens[1]=="-s"){
+				if(fork() == 0){
+					execlp("ln","./ln",tokens[2].c_str(), tokens[3].c_str(), (char *)0);
+				}
+				
 			}
 		}
-	}else{
-		if(fork() == 0){
-			execlp("/home/isaac/Desktop/Trabajos/Sistemas_Operativos_1/scripts/Isaias/mi_shell/ls","./ls", (char *)0);
-		}
-	}
     }
-    else if(tokens[0]=="cd"){
-	if(tokens.size()== 1){
-		cout<<"Uso incorrecto de cd, muy pocos argumentos"<<endl;
-		return 0;
-	}
-	else{
-		chdir(tokens[1].c_str());
-	}
-    }
-    else if(tokens[0]=="rmdir"){
-	if(tokens.size()==1){
-		cout<<"Uso incorrecto de rmdir, muy pocos argumentos"<<endl;
-		return 0;
-	}else{
-		if(fork() == 0){
-			execlp("/home/isaac/Desktop/Trabajos/Sistemas_Operativos_1/scripts/Isaias/mi_shell/rmdir","./rmdir",tokens[1].c_str(), (char *)0);
-		}
-	}
-    }
-    else if(tokens[0]=="ps"){
-	if(tokens.size()==2){
-		if(tokens[1]=="-e"){
+    if(tokens[0]=="uname"){
+		if(tokens.size()==1){
+			cout<<"Error, faltan argumentos"<<endl;
+		}else{
 			if(fork() == 0){
-				execlp("/home/isaac/Desktop/Trabajos/Sistemas_Operativos_1/scripts/Isaias/mi_shell/ps-e","./ps-e", (char *)0);
-			}
-		}
-	}
-    }else if(tokens[0]=="ln"){
-	if(tokens.size()==1){
-		cout<<"Error, hacen falta argumentos"<<endl;
-		return 0;
-	}else{
-		if(tokens[1]=="-s"){
-			if(fork() == 0){
-				execlp("/home/isaac/Desktop/Trabajos/Sistemas_Operativos_1/scripts/Isaias/mi_shell/ln","./ln",tokens[2].c_str(), tokens[3].c_str(), (char *)0);
+				execlp("uname","./uname",tokens[1].c_str(), (char *)0);
 			}
 			
 		}
-	}
-    }else if(tokens[0]=="uname"){
-	if(tokens.size()==1){
-		cout<<"Error, faltan argumentos"<<endl;
-	}else{
-		if(fork() == 0){
-			execlp("/home/isaac/Desktop/Trabajos/Sistemas_Operativos_1/scripts/Isaias/mi_shell/uname","./uname",tokens[1].c_str(), (char *)0);
+    }
+    if(tokens[0]=="chmod"){
+		if(tokens.size()==1){
+			cout<<"Error, faltan argumentos"<<endl;
+			return 0;
 		}
-		
-	}
-    }else if(tokens[0]=="chmod"){
-	if(tokens.size()==1){
-		cout<<"Error, faltan argumentos"<<endl;
-		return 0;
-	}
-	else{
-                int controlador = 0;
-                int i = 0;
-                int mode;
-                do{
-                        //if(arg[i]==' '){
-                                controlador++;
-                                if(controlador==1){
-                                        mode = strtol(tokens[1].c_str(), 0, 8);
-                                }
-                                if(controlador==2){
-                                        if(chmod(tokens[2].c_str(), mode) != 0){
-                                                perror("Command failed");
-                                        }
-                                }
-                              //  arg = strtok(NULL, DELIMS);
-                        //}
-                        i++;
-                }while(controlador!=tokens.size());
-                if(controlador<2){
-                        fprintf(stderr, "chmod missing argument .\n");
-                }
-
-	}
-    }else if(tokens[0]=="mkdir"){
+		else{
+	        int controlador = 0;
+	        int i = 0;
+	        int mode;
+	        do{
+				//if(arg[i]==' '){
+				controlador++;
+				if(controlador==1){
+					mode = strtol(tokens[1].c_str(), 0, 8);
+				}
+	            if(controlador==2){
+					if(chmod(tokens[2].c_str(), mode) != 0){
+						perror("Command failed");
+					}
+				}
+				//  arg = strtok(NULL, DELIMS);
+				//}
+				i++;
+	        }while(controlador!=tokens.size());
+	        if(controlador<2){
+	            fprintf(stderr, "chmod missing argument .\n");
+	        }
+	        return 0;
+		}
+    }
+    if(tokens[0]=="mkdir"){
 		if(tokens.size()==1){
 			cout<<"Error, faltan argumentos"<<endl;
 			return 0;
 		}
 		else{
 			if(fork() == 0){
-				execlp("mkdir","./mkdir",tokens[1].c_str(), (char *)0);
+				return execlp("mkdir","./mkdir",tokens[1].c_str(), (char *)0);
 			}
-			
+			return 0;
 		}
     }
-    else
-    	cout << tokens[0] << ": comando no encontrado" << endl;
+    if(tokens[0] == "ln"){
+       if(tokens.size() == 1){
+            cout << "Falta comandos para el uso de ln, ln [opciones]\n"
+                 << "opciones: -s"<<endl;
+       }else{
+         if(tokens[1] == "-s"){
+            if(tokens.size() < 4){
+                cout << "Falta el nombre del archivo existente o el nuevo archivo\n"
+                     << "ln -s archivo.txt archivo2.txt"<<endl;
+            }else{
+                char * archivo = new char [tokens[2].length()+1];
+                strcpy(archivo,tokens[2].c_str());
+
+                char * linkarchivo = new char [tokens[3].length()+1];
+                strcpy(linkarchivo,tokens[3].c_str());
+
+                if(link(archivo, linkarchivo) < 0){
+                    cout << "Error al linkear el archivo" << endl;
+                }
+            }
+         }
+      }
+      return 0;
+    }
+    
+    cout << tokens[0] << ": comando no encontrado" << endl;
     return 0;
 }
 
