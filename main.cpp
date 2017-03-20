@@ -21,12 +21,13 @@
 #endif
 
 //INLCUDING COMMANDS
-#include "cat.h"
+//#include "commands/cat.h"
 
 using namespace std;
 
 int executeCommand(vector<string>&);
 vector<string> getTokens(string, char);
+char** vectorToCharPP (vector<string> tokenized);
 
 int main(int argc, char const *argv[]){
     int status = 0;
@@ -54,6 +55,24 @@ int executeCommand(vector<string>& tokens){
         cerr << "No hay commando a ejecutar" << endl;
         return 0;
     }
+    int childErr;
+    if(tokens.size() > 0){
+        int ppid, chpid;
+        string commandPath = "commands/bin/" + tokens[0];
+        char** argvData = vectorToCharPP (tokens);
+        if((chpid=fork()) == 0){
+           
+            childErr = execvp(commandPath.c_str(), argvData);
+            cout << "Comando " << argvData[0] <<": Fallido" << endl;
+
+            return childErr;
+        }else{
+            wait(NULL);
+            return 0;
+        }
+        return -1;
+    }
+    /*
     if(tokens[0] == "help"){
         if(tokens.size() == 1){
             cout << "-----AYUDA-----\n"
@@ -101,14 +120,15 @@ int executeCommand(vector<string>& tokens){
           //     i++;
                controlador++;
         }while(controlador!=tokens.size());
-        */ 
+        */
+        /* 
         //CAT de Isaias
         char * filename = new char [tokens[1].length()+1];
         strcpy(filename,tokens[1].c_str());
         cout << filename << endl;
         cat fileToPrint (filename);
         fileToPrint.printFile();
-        delete[] filename;
+        delete[] filename;*//*
         return 0;
     } 
     if (tokens[0] == "rm"){
@@ -138,7 +158,6 @@ int executeCommand(vector<string>& tokens){
 		if(tokens.size()==2){
 			if(tokens[1]=="-m"){
 				if(fork() == 0){
-					cout << "qp1" << endl;
 					return execlp("ls-m", "./ls-m", (char *)0);
 				}
 				return -1;
@@ -146,7 +165,6 @@ int executeCommand(vector<string>& tokens){
 			if(tokens[1]=="-l"){
 				if(fork() == 0){
 					//execlp("./ls-l", "./ls-l", (char *)0);
-					cout << "qp2" << endl;
 					return execlp("ls-l", "./ls-l", (char *)0);
 				}
 				return -1;
@@ -154,7 +172,6 @@ int executeCommand(vector<string>& tokens){
 			return -1;
 		}else{
 			if(fork() == 0){
-				cout << "qp3" << endl;
 				execlp("ls","./ls", (char *)0);
 			}
 			return 0;
@@ -251,7 +268,8 @@ int executeCommand(vector<string>& tokens){
 		}
 		else{
 			if(fork() == 0){
-				return execlp("mkdir","./mkdir",tokens[1].c_str(), (char *)0);
+                cout << "Ejecutando mkdir" << endl;
+				execlp("commands/bin/mkdir", "mkdir", tokens[1].c_str(), (char *)0);
 			}
 			return 0;
 		}
@@ -283,6 +301,7 @@ int executeCommand(vector<string>& tokens){
     
     cout << tokens[0] << ": comando no encontrado" << endl;
     return 0;
+    */
 }
 
 //retorna los tokens de la terminal
@@ -297,4 +316,19 @@ vector<string> getTokens(string toTokenize, char delimiter){
     }
     v.push_back(string(stringIT,toTokenize.end()));
     return v;
+}
+/*
+retorna un char** al enviarle un vector<string>
+vectorToCharPP = de vector a char puntero puntero 
+*/
+char** vectorToCharPP (vector<string> tokenized){
+    char** tokens;
+    int tokenAmount = tokenized.size();
+    tokens = new char*[tokenAmount+1];
+    for(int i = 0; i < tokenAmount; i++){
+        tokens[i] = new char[tokenized[i].length()];
+        strcpy(tokens[i],tokenized[i].c_str());
+    }
+    tokens[tokenAmount] = NULL;
+    return tokens;
 }
