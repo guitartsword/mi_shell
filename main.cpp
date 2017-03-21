@@ -28,8 +28,11 @@ using namespace std;
 int executeCommand(vector<string>&);
 vector<string> getTokens(string, char);
 char** vectorToCharPP (vector<string> tokenized);
+string PATH, CURR_DIR;
 
 int main(int argc, char const *argv[]){
+    CURR_DIR = getenv("PWD");
+    PATH = CURR_DIR+"/commands/bin/";
     int status = 0;
     while(!status) {
         cout << "mi_sh> ";
@@ -58,19 +61,26 @@ int executeCommand(vector<string>& tokens){
     int childErr;
     if(tokens.size() > 0){
         int ppid, chpid;
-        string commandPath = "commands/bin/" + tokens[0];
+        	string commandPath = PATH + tokens[0];
         char** argvData = vectorToCharPP (tokens);
-        if((chpid=fork()) == 0){
-           
-            childErr = execvp(commandPath.c_str(), argvData);
-            cout << "Comando " << argvData[0] <<": Fallido" << endl;
+	if(tokens[0] == "cd"){
+	        if(tokens.size()== 2){
+               		chdir(tokens[1].c_str());
+        	}
+		return 0;
 
-            return childErr;
-        }else{
-            wait(NULL);
-            return 0;
-        }
-        return -1;
+	}else{
+        	if((chpid=fork()) == 0){
+            		childErr = execvp(commandPath.c_str(), argvData);
+            		cout << "Comando " << argvData[0] <<": Fallido" << endl;
+
+            		return childErr;
+        	}else{
+            		wait(NULL);
+            		return 0;
+        	}
+        	return -1;
+	}
     }
     /*
     if(tokens[0] == "help"){
