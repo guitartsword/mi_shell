@@ -72,6 +72,7 @@ int executeCommand(vector<string>& tokens){
 		if(tokens[0] == "cd"){
 			if(tokens.size()== 2){
 				chdir(tokens[1].c_str());
+				CURR_DIR = getenv("PWD");
 			}
 			return 0;
 		}else{
@@ -211,9 +212,7 @@ int Pipe(string PATH, char** argvData, char** comando1, char** comando2){
 
 		return execvp(commandPath.c_str(), comando2);
 		perror("Error en el execvp");
-
-		return 0;
-	}else if((pid == fork()) == 0){//PROCESO HIJO
+	}else if((pid = fork()) == 0){//PROCESO HIJO
 		string commandPath = PATH + comando1[0];
 
 		dup2(a[1], 1);
@@ -224,6 +223,8 @@ int Pipe(string PATH, char** argvData, char** comando1, char** comando2){
 
 	} else {
 		waitpid(pid, NULL, 0);
+		close(a[0]);
+		close(a[1]);
 		return 0;
 	}
 
@@ -239,8 +240,7 @@ int Redirect(string PATH, char** argvData, char** comando1, char** comando2){
 	pipe(a);
 
 	if(fork() == 0){
-		string commandPath = PATH + comando2[0];
-
+		string commandPath = CURR_DIR+"/"+ comando2[0];
 		file = open(commandPath.c_str(), O_RDWR | O_CREAT, 0666);
 
 		if(file < 0){
@@ -293,8 +293,8 @@ int Neither(string PATH, int argcData, char** argvData){
 			argvData[argcData-1] = NULL;
 			argcData--;
 		}
-
-		return execvp(argvData[0], argvData);
+		string commandPath = PATH + argvData[0];
+		return execvp(commandPath.c_str(), argvData);
 		perror("Error en el execvp");
 				
 	}else if( !encontro){
