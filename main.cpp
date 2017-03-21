@@ -209,7 +209,7 @@ int Pipe(string PATH, char** argvData, char** comando1, char** comando2){
 		dup2(a[0], 0);
 		close(a[1]);
 
-		return execvp(comando2[0], comando2);
+		return execvp(commandPath.c_str(), comando2);
 		perror("Error en el execvp");
 
 		return 0;
@@ -219,7 +219,7 @@ int Pipe(string PATH, char** argvData, char** comando1, char** comando2){
 		dup2(a[1], 1);
 		close(a[0]);
 
-		return execvp(comando1[0], comando1);
+		return execvp(commandPath.c_str(), comando1);
 		perror("Error en el execvp");
 
 	} else {
