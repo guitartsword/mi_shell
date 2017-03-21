@@ -34,7 +34,7 @@ char** vectorToCharPP (vector<string> tokenized);
 TipoComando identificarComando(int, char**, char**, char**);
 void Pipe(string, char**, char**, char**);
 void Redirect(string, char**, char**, char**);
-void Neither(string, char**, char**, char**);
+void Neither(string, int, char**, char**, char**);
 
 string PATH, CURR_DIR;
 
@@ -99,7 +99,7 @@ int executeCommand(vector<string>& tokens){
 			}else{
 				cout << "entra a NEITHER" << endl;
 
-				Neither(PATH, argvData, comando1, comando2);
+				Neither(PATH, argcData, argvData, comando1, comando2);
 			}
 		}
 		/*int ppid, chpid;
@@ -267,7 +267,7 @@ void Redirect(string PATH, char** argvData, char** comando1, char** comando2){
 	}
 }
 
-void Neither(string PATH, char** argvData, char** comando1, char** comando2){
+void Neither(string PATH, int argcData, char** argvData, char** comando1, char** comando2){
 	const char *amperson;
 	pid_t pid;
 	amperson = "&";
