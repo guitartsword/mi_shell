@@ -32,9 +32,9 @@ int executeCommand(vector<string>&);
 vector<string> getTokens(string, char);
 char** vectorToCharPP (vector<string> tokenized);
 TipoComando identificarComando(int, char**, char**, char**);
-void Pipe(string, char**, char**, char**);
-void Redirect(string, char**, char**, char**);
-void Neither(string, int, char**, char**, char**);
+int Pipe(string, char**, char**, char**);
+int Redirect(string, char**, char**, char**);
+int Neither(string, int, char**);
 
 string PATH, CURR_DIR;
 
@@ -87,19 +87,18 @@ int executeCommand(vector<string>& tokens){
 			tipo_comando = identificarComando(argcData, argvData, comando1, comando2);
 
 			if(tipo_comando == PIPE){
-				cout << "Entra a Pipe" << endl;
 
-				Pipe(PATH, argvData, comando1, comando2);
+				childErr = Pipe(PATH, argvData, comando1, comando2);
+				return childErr;
 
 			}else if(tipo_comando == REDIRECT){
-				cout << "Entra a REDIRECT" << endl;
 
-				Redirect(PATH, argvData, comando1, comando2);
+				childErr = Redirect(PATH, argvData, comando1, comando2);
+				return childErr;
 
 			}else{
-				cout << "entra a NEITHER" << endl;
-
-				Neither(PATH, argcData, argvData, comando1, comando2);
+				childErr = Neither(PATH, argcData, argvData);
+				return childErr;
 			}
 		}
 		/*int ppid, chpid;
@@ -162,10 +161,10 @@ char** vectorToCharPP (vector<string> tokenized){
 }
 
 TipoComando identificarComando(int argcData, char** argvData, char** comando1, char** comando2){
-	cout << "Entra a identificar" << endl;
-
 	TipoComando tipo = NEITHER;
 	int temp = -1;
+
+	char** argv = argvData;
 
 	for(int i = 0; i < argcData; i++){
 		if(strcmp(argvData[i], "|") == 0){
@@ -180,12 +179,12 @@ TipoComando identificarComando(int argcData, char** argvData, char** comando1, c
 
 	if(tipo != NEITHER){
 		for(int i = 0; i < temp; i++){
-			comando1[i] = argvData[i];
+			comando1[i] = argv[i];
 		}
 
 		int count = 0;
 		for(int i=temp+1; i<argcData; i++){
-			comando2[count] = argvData[i];
+			comando2[count] = argv[i];;
 			count++;
 		}
 
@@ -196,12 +195,13 @@ TipoComando identificarComando(int argcData, char** argvData, char** comando1, c
 	return tipo;
 }
 
-void Pipe(string PATH, char** argvData, char** comando1, char** comando2){
+int Pipe(string PATH, char** argvData, char** comando1, char** comando2){
 
-	int a[2];
+	int a[2], m;
 	pid_t pid;
 
 	pipe(a);
+
 
 	if(fork() == 0){//PROCESO PADRE 
 		string commandPath = PATH + comando2[0];
@@ -209,23 +209,27 @@ void Pipe(string PATH, char** argvData, char** comando1, char** comando2){
 		dup2(a[0], 0);
 		close(a[1]);
 
-		execvp(commandPath.c_str(), argvData);//No estoy segura de ese argvData en el execvp
+		return execvp(comando2[0], comando2);
 		perror("Error en el execvp");
+
+		return 0;
 	}else if((pid == fork()) == 0){//PROCESO HIJO
 		string commandPath = PATH + comando1[0];
 
 		dup2(a[1], 1);
 		close(a[0]);
 
-		execvp(commandPath.c_str(), argvData);
+		return execvp(comando1[0], comando1);
 		perror("Error en el execvp");
+
 	} else {
 		waitpid(pid, NULL, 0);
+		return 0;
 	}
 
 }
 
-void Redirect(string PATH, char** argvData, char** comando1, char** comando2){
+int Redirect(string PATH, char** argvData, char** comando1, char** comando2){
 	int contador;
 	int file;
 	int a[2];
@@ -251,23 +255,24 @@ void Redirect(string PATH, char** argvData, char** comando1, char** comando2){
 			write(file, &caracter, 1);
 		}
 
-		execlp("echo", "echo", NULL);
+		return execlp("echo", "echo", NULL);
 	}else if((pid = fork()) == 0){
 		string commandPath = PATH + comando1[0];
 
 		dup2(a[1], 1);
 		close(a[0]);
 
-		execvp(commandPath.c_str(), comando1);//probar sin argvData
+		return execvp(commandPath.c_str(), comando1);//probar sin argvData
 		perror("execvp error en el execvp");
 	}else{
 		waitpid(pid, NULL, 0);
 		close(a[0]);
 		close(a[1]);
+		return 0;
 	}
 }
 
-void Neither(string PATH, int argcData, char** argvData, char** comando1, char** comando2){
+int Neither(string PATH, int argcData, char** argvData){
 	const char *amperson;
 	pid_t pid;
 	amperson = "&";
@@ -289,10 +294,11 @@ void Neither(string PATH, int argcData, char** argvData, char** comando1, char**
 			argcData--;
 		}
 
-		execvp(argvData[0], argvData);
+		return execvp(argvData[0], argvData);
 		perror("Error en el execvp");
 				
 	}else if( !encontro){
 		waitpid(pid, NULL, 0);
+		return 0;
 	}
 }
