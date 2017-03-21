@@ -4,9 +4,6 @@
 #include <string.h>
 
 int main(int argc, char const *argv[]){
-	for (int i = 0; i < argc; i++){
-		printf("Usted tiene como argunmento[%d] %s\n",i, argv[i]);
-	}
 	if(argc > 0){
 		if(argc == 3){
 			pid_t pid;

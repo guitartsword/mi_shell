@@ -60,9 +60,8 @@ int executeCommand(vector<string>& tokens){
 	}
 	int childErr;
 	if(tokens.size() > 0){
-			int ppid, chpid;
-			string commandPath = PATH + tokens[0];
-			char** argvData = vectorToCharPP (tokens);
+		int ppid, chpid;
+		
 		if(tokens[0] == "cd"){
 			if(tokens.size()== 2){
 				chdir(tokens[1].c_str());
@@ -71,6 +70,11 @@ int executeCommand(vector<string>& tokens){
 
 		}else{
 			if((chpid=fork()) == 0){
+				char** argvData = vectorToCharPP (tokens);
+				int argcData = tokens.size();
+				
+				string commandPath = PATH + argvData[0];
+
 				childErr = execvp(commandPath.c_str(), argvData);
 				cout << "Comando " << argvData[0] <<": Fallido" << endl;
 
